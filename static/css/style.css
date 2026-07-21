@@ -396,6 +396,7 @@ h1 {
     display: inline-flex;
 }
 
+
 /* =========================
    ПОЛЯ
 ========================= */
@@ -403,56 +404,111 @@ h1 {
 .grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 20px;
+    gap: 22px;
 }
 
 .form-group {
+    position: relative;
     display: flex;
+    min-width: 0;
     flex-direction: column;
 }
 
-label {
-    margin-bottom: 8px;
+.form-group label {
+    display: flex;
+    align-items: center;
+    min-height: 20px;
+    margin-bottom: 9px;
     color: #5f4a3b;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
+    line-height: 1.35;
 }
 
 select,
 input,
 textarea {
     width: 100%;
-    border: 1px solid #efc5a2;
-    border-radius: 13px;
-    background: #fffdfb;
+    border: 1px solid #ead3c1;
+    border-radius: 15px;
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #fffaf6 100%
+        );
     color: var(--text-main);
     font-family: inherit;
-    font-size: 16px;
+    font-size: 15px;
     outline: none;
+    box-shadow:
+        0 2px 6px rgba(117, 73, 39, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
     transition:
-        border-color 0.2s,
-        box-shadow 0.2s,
-        background-color 0.2s,
-        transform 0.2s;
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease,
+        transform 0.2s ease;
 }
 
 select,
 input {
-    min-height: 50px;
-    padding: 12px 14px;
+    min-height: 54px;
+    padding: 13px 15px;
 }
 
 textarea {
     min-height: 220px;
-    padding: 15px;
+    padding: 15px 16px;
     resize: vertical;
     line-height: 1.55;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #b19f91;
+    opacity: 1;
+}
+
+select {
+    padding-right: 44px;
+    appearance: none;
+    cursor: pointer;
+    background-image:
+        linear-gradient(
+            45deg,
+            transparent 50%,
+            var(--orange-dark) 50%
+        ),
+        linear-gradient(
+            135deg,
+            var(--orange-dark) 50%,
+            transparent 50%
+        ),
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #fffaf6 100%
+        );
+    background-position:
+        calc(100% - 20px) 23px,
+        calc(100% - 14px) 23px,
+        0 0;
+    background-size:
+        6px 6px,
+        6px 6px,
+        100% 100%;
+    background-repeat: no-repeat;
 }
 
 select:hover,
 input:hover,
 textarea:hover {
-    border-color: var(--orange);
+    border-color: #e6a872;
+    background-color: var(--white);
+    box-shadow:
+        0 5px 14px rgba(210, 104, 18, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 select:focus,
@@ -460,24 +516,84 @@ input:focus,
 textarea:focus {
     border-color: var(--orange);
     background: var(--white);
-    box-shadow: 0 0 0 4px rgba(242, 140, 40, 0.13);
+    box-shadow:
+        0 0 0 4px rgba(242, 140, 40, 0.12),
+        0 8px 20px rgba(210, 104, 18, 0.1);
+    transform: translateY(-1px);
+}
+
+select:disabled,
+input:disabled,
+textarea:disabled {
+    border-color: #eadfd6;
+    background: #f6f2ef;
+    color: #9f9186;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 1;
+}
+
+select:disabled {
+    background-image:
+        linear-gradient(
+            45deg,
+            transparent 50%,
+            #b8aaa0 50%
+        ),
+        linear-gradient(
+            135deg,
+            #b8aaa0 50%,
+            transparent 50%
+        );
+    background-position:
+        calc(100% - 20px) 23px,
+        calc(100% - 14px) 23px;
+    background-size:
+        6px 6px,
+        6px 6px;
+    background-repeat: no-repeat;
+}
+
+input[type="number"] {
+    font-variant-numeric: tabular-nums;
 }
 
 input.field-error,
-select.field-error {
+select.field-error,
+textarea.field-error {
     border-color: var(--red);
     background: var(--red-soft);
+    box-shadow: 0 0 0 4px rgba(214, 69, 69, 0.1);
 }
 
 .field-hint {
     display: block;
-    margin-top: 7px;
+    min-height: 34px;
+    margin-top: 8px;
     color: var(--text-soft);
     font-size: 12px;
     font-weight: 400;
-    line-height: 1.4;
+    line-height: 1.45;
 }
 
+.form-group:focus-within label {
+    color: var(--orange-dark);
+}
+
+.form-group-wide input,
+.form-group-wide textarea {
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #fff8f2 100%
+        );
+}
+
+select:valid:not(:disabled),
+input:valid:not(:placeholder-shown) {
+    border-color: #dfb38e;
+}
 /* =========================
    ЧЕКБОКС
 ========================= */
@@ -1161,4 +1277,16 @@ button:active {
 
 .google-form-button.hidden {
     display: none;
+}
+
+select:not(:disabled):valid,
+input:not([type="checkbox"]):not([type="radio"]):valid {
+    background-color: #fffdfb;
+}
+
+select:not(:disabled):valid:not(:focus),
+input:not([type="checkbox"]):not([type="radio"]):valid:not(:focus) {
+    box-shadow:
+        0 2px 7px rgba(47, 158, 100, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }

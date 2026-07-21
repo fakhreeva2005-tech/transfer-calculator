@@ -937,10 +937,6 @@ resetButton.addEventListener("click", function () {
         employeeNameInput.value = savedName;
     }
 
-    document.getElementById("completedPractice").value = 0;
-    document.getElementById("completedTheory").value = 0;
-    document.getElementById("giftLessons").value = 0;
-    document.getElementById("promoAmount").value = 0;
 
     calculationCompleted = false;
 
