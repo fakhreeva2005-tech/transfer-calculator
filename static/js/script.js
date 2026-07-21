@@ -380,7 +380,7 @@ form.addEventListener("submit", function (event) {
         promoAmount < 0
     ) {
         showError(
-            "Промо-сумма не может быть отрицательной.",
+            "Промокод не может быть отрицательным.",
             "promoAmount"
         );
         return;
@@ -648,7 +648,7 @@ ${totalLessonsToNewPackage}
 Сумма переноса:
 ${formatMoney(transferAmount)}
 
-Промо-сумма:
+Промокод:
 ${formatMoney(promoAmount)}
 
 Примечание:
