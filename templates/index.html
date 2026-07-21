@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Калькулятор переноса занятий</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+</head>
+
+<body>
+
+<main class="container">
+
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+    <header class="hero-panel">
+
+        <div class="hero-top">
+
+            <div>
+                <p class="page-label">
+                    Внутренний инструмент
+                </p>
+
+                <h1>
+                    Калькулятор переноса занятий
+                </h1>
+
+                <p class="page-description">
+                    Рассчитайте остаток оплаченных занятий,
+                    сумму переноса и количество занятий,
+                    которое поступит в новый пакет.
+                </p>
+            </div>
+
+            <span class="version-badge">
+                Версия 1
+            </span>
+
+        </div>
+
+        <!-- ПРОГРЕСС В ПРОЦЕНТАХ -->
+        <div class="progress-panel">
+
+            <div class="progress-info">
+
+                <div>
+                    <span class="progress-label">
+                        Прогресс заполнения
+                    </span>
+
+                    <strong id="progressPercent">
+                        0%
+                    </strong>
+                </div>
+
+                <div
+                    id="formStatus"
+                    class="form-status status-incomplete"
+                >
+                    <span class="status-dot"></span>
+
+                    <span id="formStatusText">
+                        Заполнено не всё
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="progress-track">
+                <div
+                    id="progressBar"
+                    class="progress-bar"
+                ></div>
+            </div>
+
+        </div>
+
+        <!-- ПОШАГОВЫЙ ПРОГРЕСС -->
+        <div class="steps-progress">
+
+            <div
+                class="progress-step active"
+                data-progress-step="1"
+            >
+                <span class="progress-step-circle">
+                    1
+                </span>
+
+                <span class="progress-step-name">
+                    Исходный продукт
+                </span>
+            </div>
+
+            <div class="progress-line"></div>
+
+            <div
+                class="progress-step"
+                data-progress-step="2"
+            >
+                <span class="progress-step-circle">
+                    2
+                </span>
+
+                <span class="progress-step-name">
+                    Занятия
+                </span>
+            </div>
+
+            <div class="progress-line"></div>
+
+            <div
+                class="progress-step"
+                data-progress-step="3"
+            >
+                <span class="progress-step-circle">
+                    3
+                </span>
+
+                <span class="progress-step-name">
+                    Новый продукт
+                </span>
+            </div>
+
+            <div class="progress-line"></div>
+
+            <div
+                class="progress-step"
+                data-progress-step="4"
+            >
+                <span class="progress-step-circle">
+                    4
+                </span>
+
+                <span class="progress-step-name">
+                    Результат
+                </span>
+            </div>
+
+        </div>
+
+    </header>
+
+    <form id="transferForm">
+
+        <!-- ШАГ 1 -->
+        <section
+            class="card form-step-card"
+            data-step-card="1"
+        >
+
+            <div class="card-header">
+
+                <div class="step-icon">
+                    📚
+                </div>
+
+                <div class="card-title-block">
+
+                    <div class="card-title-row">
+
+                        <h2>
+                            Исходный продукт
+                        </h2>
+
+                        <span class="card-complete-badge">
+                            ✓ Заполнено
+                        </span>
+
+                    </div>
+
+                    <p>
+                        Укажите данные клиента и продукта,
+                        с которого выполняется перенос.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="grid">
+
+                <div class="form-group form-group-wide">
+
+                    <label for="employeeName">
+                        Имя и фамилия сотрудника
+                    </label>
+
+                    <input
+                        type="text"
+                        id="employeeName"
+                        placeholder="Например, Эльвира Фахреева"
+                        autocomplete="name"
+                        data-required-field
+                        required
+                    >
+
+                    <small class="field-hint">
+                        Имя сохранится в этом браузере
+                        и автоматически подставится в Google Форму.
+                    </small>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="sourceUserId">
+                        USERID, с которого переносим
+                    </label>
+
+                    <input
+                        type="text"
+                        id="sourceUserId"
+                        placeholder="Например, 1234567"
+                        autocomplete="off"
+                        data-required-field
+                        required
+                    >
+
+                    <small class="field-hint">
+                        USERID клиента на исходном продукте.
+                    </small>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="targetUserId">
+                        USERID, на который переносим
+                    </label>
+
+                    <input
+                        type="text"
+                        id="targetUserId"
+                        placeholder="Например, 7654321"
+                        autocomplete="off"
+                        data-required-field
+                        required
+                    >
+
+                    <small class="field-hint">
+                        USERID клиента на новом продукте.
+                    </small>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="sourceSubject">
+                        Предмет
+                    </label>
+
+                    <select
+                        id="sourceSubject"
+                        data-required-field
+                        required
+                    >
+                        <option value="">
+                            Выберите предмет
+                        </option>
+
+                        <option value="Математика">
+                            Математика
+                        </option>
+
+                        <option value="Профильная математика">
+                            Профильная математика
+                        </option>
+
+                        <option value="Базовая математика">
+                            Базовая математика
+                        </option>
+
+                        <option value="Английский язык">
+                            Английский язык
+                        </option>
+
+                        <option value="Русский язык">
+                            Русский язык
+                        </option>
+
+                        <option value="Обществознание">
+                            Обществознание
+                        </option>
+
+                        <option value="Биология">
+                            Биология
+                        </option>
+
+                        <option value="Химия">
+                            Химия
+                        </option>
+
+                        <option value="Физика">
+                            Физика
+                        </option>
+
+                        <option value="История">
+                            История
+                        </option>
+
+                        <option value="Литература">
+                            Литература
+                        </option>
+
+                        <option value="Информатика">
+                            Информатика
+                        </option>
+
+                        <option value="География">
+                            География
+                        </option>
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="sourceClass">
+                        Класс
+                    </label>
+
+                    <select
+                        id="sourceClass"
+                        data-required-field
+                        required
+                    >
+                        <option value="">
+                            Выберите класс
+                        </option>
+
+                        <option value="5">
+                            5 класс
+                        </option>
+
+                        <option value="6">
+                            6 класс
+                        </option>
+
+                        <option value="7">
+                            7 класс
+                        </option>
+
+                        <option value="8">
+                            8 класс
+                        </option>
+
+                        <option value="9">
+                            9 класс
+                        </option>
+
+                        <option value="10">
+                            10 класс
+                        </option>
+
+                        <option value="11">
+                            11 класс
+                        </option>
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="sourceGrade">
+                        Грейд
+                    </label>
+
+                    <select
+                        id="sourceGrade"
+                        data-required-field
+                        required
+                    >
+                        <option value="">
+                            Выберите грейд
+                        </option>
+
+                        <option value="Компетентный">
+                            Компетентный
+                        </option>
+
+                        <option value="Профессионал">
+                            Профессионал
+                        </option>
+
+                        <option value="Эксперт">
+                            Эксперт
+                        </option>
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="totalLessons">
+                        Оплаченных занятий в пакете
+                    </label>
+
+                    <input
+                        type="number"
+                        id="totalLessons"
+                        min="1"
+                        step="1"
+                        placeholder="Например, 128"
+                        data-required-field
+                        required
+                    >
+
+                    <small class="field-hint">
+                        Подарочные занятия сюда не включаем.
+                    </small>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="packagePrice">
+                        Стоимость оплаченного пакета, ₽
+                    </label>
+
+                    <input
+                        type="number"
+                        id="packagePrice"
+                        min="0.01"
+                        step="0.01"
+                        placeholder="Например, 62158.39"
+                        data-required-field
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ШАГ 2 -->
+        <section
+            class="card form-step-card"
+            data-step-card="2"
+        >
+
+            <div class="card-header">
+
+                <div class="step-icon">
+                    🎓
+                </div>
+
+                <div class="card-title-block">
+
+                    <div class="card-title-row">
+
+                        <h2>
+                            Использованные и подарочные занятия
+                        </h2>
+
+                        <span class="card-complete-badge">
+                            ✓ Заполнено
+                        </span>
+
+                    </div>
+
+                    <p>
+                        Введите данные из информационного дашборда.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="grid">
+
+                <div class="form-group">
+
+                    <label for="completedPractice">
+                        Пройденные практические занятия
+                    </label>
+
+                    <input
+                        type="number"
+                        id="completedPractice"
+                        min="0"
+                        step="1"
+                        value="0"
+                        data-required-field
+                        required
+                    >
+
+                    <small class="field-hint">
+                        Только занятия из оплаченного пакета.
+                    </small>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="completedTheory">
+                        Пройденные ТВЛ
+                    </label>
+
+                    <input
+                        type="number"
+                        id="completedTheory"
+                        min="0"
+                        step="1"
+                        value="0"
+                        data-required-field
+                        required
+                    >
+
+                    <small class="field-hint">
+                        Только занятия из оплаченного пакета.
+                    </small>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="giftLessons">
+                        Незавершённые подарочные занятия
+                    </label>
+
+                    <input
+                        type="number"
+                        id="giftLessons"
+                        min="0"
+                        step="1"
+                        value="0"
+                        data-required-field
+                        required
+                    >
+
+                    <small class="field-hint">
+                        Переносятся бесплатно и не участвуют
+                        в расчёте суммы.
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ШАГ 3 -->
+        <section
+            class="card form-step-card"
+            data-step-card="3"
+        >
+
+            <div class="card-header">
+
+                <div class="step-icon">
+                    🎯
+                </div>
+
+                <div class="card-title-block">
+
+                    <div class="card-title-row">
+
+                        <h2>
+                            Новый продукт
+                        </h2>
+
+                        <span class="card-complete-badge">
+                            ✓ Заполнено
+                        </span>
+
+                    </div>
+
+                    <p>
+                        Укажите продукт,
+                        на который клиент хочет перенести занятия.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="grid">
+
+                <div class="form-group">
+
+                    <label for="targetSubject">
+                        Новый предмет
+                    </label>
+
+                    <select
+                        id="targetSubject"
+                        data-required-field
+                        required
+                    >
+                        <option value="">
+                            Выберите предмет
+                        </option>
+
+                        <option value="Математика">
+                            Математика
+                        </option>
+
+                        <option value="Профильная математика">
+                            Профильная математика
+                        </option>
+
+                        <option value="Базовая математика">
+                            Базовая математика
+                        </option>
+
+                        <option value="Английский язык">
+                            Английский язык
+                        </option>
+
+                        <option value="Русский язык">
+                            Русский язык
+                        </option>
+
+                        <option value="Обществознание">
+                            Обществознание
+                        </option>
+
+                        <option value="Биология">
+                            Биология
+                        </option>
+
+                        <option value="Химия">
+                            Химия
+                        </option>
+
+                        <option value="Физика">
+                            Физика
+                        </option>
+
+                        <option value="История">
+                            История
+                        </option>
+
+                        <option value="Литература">
+                            Литература
+                        </option>
+
+                        <option value="Информатика">
+                            Информатика
+                        </option>
+
+                        <option value="География">
+                            География
+                        </option>
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="targetClass">
+                        Новый класс
+                    </label>
+
+                    <select
+                        id="targetClass"
+                        data-required-field
+                        required
+                    >
+                        <option value="">
+                            Выберите класс
+                        </option>
+
+                        <option value="5">
+                            5 класс
+                        </option>
+
+                        <option value="6">
+                            6 класс
+                        </option>
+
+                        <option value="7">
+                            7 класс
+                        </option>
+
+                        <option value="8">
+                            8 класс
+                        </option>
+
+                        <option value="9">
+                            9 класс
+                        </option>
+
+                        <option value="10">
+                            10 класс
+                        </option>
+
+                        <option value="11">
+                            11 класс
+                        </option>
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="targetGrade">
+                        Новый грейд
+                    </label>
+
+                    <select
+                        id="targetGrade"
+                        data-required-field
+                        required
+                    >
+                        <option value="">
+                            Выберите грейд
+                        </option>
+
+                        <option value="Компетентный">
+                            Компетентный
+                        </option>
+
+                        <option value="Профессионал">
+                            Профессионал
+                        </option>
+
+                        <option value="Эксперт">
+                            Эксперт
+                        </option>
+                    </select>
+
+                </div>
+
+            </div>
+
+            <!-- ТИП ПЕРЕНОСА -->
+            <div class="transfer-mode-block">
+
+                <p class="transfer-mode-title">
+                    Тип переноса
+                </p>
+
+                <div class="transfer-mode-grid">
+
+                    <label class="transfer-mode-option">
+
+                        <input
+                            type="radio"
+                            name="transferMode"
+                            value="full"
+                            checked
+                        >
+
+                        <span class="transfer-mode-control"></span>
+
+                        <span class="transfer-mode-content">
+
+                            <strong>
+                                Полный перенос
+                            </strong>
+
+                            <small>
+                                Переносится весь доступный остаток
+                                оплаченных занятий.
+                            </small>
+
+                        </span>
+
+                    </label>
+
+                    <label class="transfer-mode-option">
+
+                        <input
+                            type="radio"
+                            name="transferMode"
+                            value="partial"
+                        >
+
+                        <span class="transfer-mode-control"></span>
+
+                        <span class="transfer-mode-content">
+
+                            <strong>
+                                Частичный перенос
+                            </strong>
+
+                            <small>
+                                Часть оплаченных занятий остаётся
+                                на исходном продукте.
+                            </small>
+
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+            <!-- ИНФОРМАЦИЯ О ПОЛНОМ ПЕРЕНОСЕ -->
+            <div
+                id="fullTransferInfo"
+                class="auto-transfer-info"
+            >
+
+                <span class="auto-transfer-icon">
+                    ✨
+                </span>
+
+                <div>
+
+                    <strong>
+                        Количество занятий определится автоматически
+                    </strong>
+
+                    <p id="fullTransferText">
+                        Укажите данные исходного пакета
+                        и использованных занятий.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- ПОЛЕ ЧАСТИЧНОГО ПЕРЕНОСА -->
+            <div
+                id="partialTransferFields"
+                class="partial-transfer-fields hidden"
+            >
+
+                <div class="form-group">
+
+                    <label for="transferLessons">
+                        Оплаченных занятий для переноса
+                    </label>
+
+                    <input
+                        type="number"
+                        id="transferLessons"
+                        min="1"
+                        step="1"
+                        placeholder="Например, 56"
+                    >
+
+                    <small
+                        id="transferLessonsHint"
+                        class="field-hint"
+                    >
+                        Укажите только оплаченные занятия.
+                        Подарочные добавятся автоматически.
+                    </small>
+
+                </div>
+
+            </div>
+
+            <!-- ДОПОЛНИТЕЛЬНЫЕ ПОЛЯ -->
+            <div class="additional-fields">
+
+                <div class="additional-fields-header">
+
+                    <h3>
+                        Дополнительные данные
+                    </h3>
+
+                    <p>
+                        Эти значения не влияют на расчёт,
+                        но попадут в готовый текст для Google Формы.
+                    </p>
+
+                </div>
+
+                <div class="grid">
+
+                    <div class="form-group">
+
+                        <label for="promoAmount">
+                            Промо-сумма, ₽
+                        </label>
+
+                        <input
+                            type="number"
+                            id="promoAmount"
+                            min="0"
+                            step="0.01"
+                            value="0"
+                        >
+
+                    </div>
+
+                    <div class="form-group form-group-wide">
+
+                        <label for="transferNote">
+                            Примечание
+                        </label>
+
+                        <textarea
+                            id="transferNote"
+                            rows="4"
+                            placeholder="При необходимости добавьте комментарий"
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+                <label class="urgent-row">
+
+                    <input
+                        type="checkbox"
+                        id="urgentTransfer"
+                    >
+
+                    <span class="custom-checkbox"></span>
+
+                    <span>
+
+                        <strong>
+                            Срочный перенос
+                        </strong>
+
+                        <small>
+                            Добавить отметку о срочности
+                            в готовые данные.
+                        </small>
+
+                    </span>
+
+                </label>
+
+            </div>
+
+        </section>
+
+        <!-- КНОПКИ -->
+        <div class="form-actions">
+
+            <button
+                type="button"
+                id="resetButton"
+                class="secondary-button"
+            >
+                <span>🗑</span>
+                Очистить
+            </button>
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                <span>🧮</span>
+                Рассчитать перенос
+            </button>
+
+        </div>
+
+    </form>
+
+    <!-- РЕЗУЛЬТАТ -->
+    <section
+        id="result"
+        class="result-card hidden"
+    >
+
+        <div class="result-header">
+
+            <div class="result-header-icon">
+                📊
+            </div>
+
+            <div>
+
+                <p class="result-label">
+                    Результат расчёта
+                </p>
+
+                <h2>
+                    Данные для переноса
+                </h2>
+
+                <p>
+                    Проверьте значения перед заполнением Google Формы.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div
+            id="transferStatus"
+            class="status-box"
+        ></div>
+
+        <!-- ГЛАВНЫЕ РЕЗУЛЬТАТЫ -->
+        <div
+            id="resultHighlights"
+            class="result-highlights"
+        ></div>
+
+        <!-- ПОДРОБНОСТИ -->
+        <div
+            id="calculationDetails"
+            class="calculation-details"
+        ></div>
+
+        <!-- ТЕКСТ ДЛЯ ФОРМЫ -->
+        <div
+            id="copyBlock"
+            class="copy-block hidden"
+        >
+
+            <div class="copy-header">
+
+                <div>
+
+                    <span class="copy-label">
+                        📋 Готовые данные
+                    </span>
+
+                    <h3>
+                        Текст для Google Формы
+                    </h3>
+
+                </div>
+
+                <span class="ready-badge">
+                    Готово к копированию
+                </span>
+
+            </div>
+
+            <textarea
+                id="formText"
+                rows="15"
+                readonly
+            ></textarea>
+
+            <button
+                type="button"
+                id="copyButton"
+                class="copy-button"
+            >
+                <span>📄</span>
+                Скопировать текст
+            </button>
+
+            <button
+                type="button"
+                id="openGoogleFormButton"
+                class="copy-button google-form-button hidden"
+            >
+                <span>📝</span>
+                Открыть заполненную Google Форму
+            </button>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+
+</html>
