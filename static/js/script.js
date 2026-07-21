@@ -31,6 +31,18 @@ const formStatusText =
 const transferLessonsInput =
     document.getElementById("transferLessons");
 
+const sourceClassInput =
+    document.getElementById("sourceClass");
+
+const sourceSubjectInput =
+    document.getElementById("sourceSubject");
+
+const targetClassInput =
+    document.getElementById("targetClass");
+
+const targetSubjectInput =
+    document.getElementById("targetSubject");
+
 const fullTransferInfo =
     document.getElementById("fullTransferInfo");
 
@@ -70,6 +82,91 @@ const GOOGLE_FORM_URL =
 
 const EMPLOYEE_NAME_STORAGE_KEY =
     "transferCalculatorEmployeeName";
+
+const SUBJECTS_BY_CLASS = {
+    "5": [
+        "Пакет предметов",
+        "Математика",
+        "Русский язык"
+    ],
+
+    "6": [
+        "Пакет предметов",
+        "Математика",
+        "Русский язык"
+    ],
+
+    "7": [
+        "Пакет предметов",
+        "Английский язык",
+        "Биология",
+        "История",
+        "Математика",
+        "Обществознание",
+        "Русский язык",
+        "Физика"
+    ],
+
+    "8": [
+       "Пакет предметов",
+        "Английский язык",
+        "Биология",
+        "Информатика",
+        "История",
+        "Математика",
+        "Обществознание",
+        "Русский язык",
+        "Физика",
+        "Химия"
+    ],
+
+    "9": [
+       "Пакет предметов",
+        "Английский язык",
+        "Биология",
+        "География",
+        "Информатика",
+        "История",
+        "Литература",
+        "Математика",
+        "Обществознание",
+        "Русский язык",
+        "Физика",
+        "Химия"
+    ],
+
+    "10": [
+       "Пакет предметов",
+        "Английский язык",
+        "Базовая математика",
+        "Биология",
+        "География",
+        "Информатика",
+        "История",
+        "Литература",
+        "Математика",
+        "Обществознание",
+        "Русский язык",
+        "Физика",
+        "Химия"
+    ],
+
+    "11": [
+       "Пакет предметов",
+        "Английский язык",
+        "Базовая математика",
+        "Биология",
+        "География",
+        "Информатика",
+        "История",
+        "Литература",
+        "Математика",
+        "Обществознание",
+        "Русский язык",
+        "Физика",
+        "Химия"
+    ]
+};
 
 /*
  * СОБЫТИЯ ФОРМЫ
@@ -123,6 +220,30 @@ if (employeeNameInput) {
         }
     });
 }
+
+sourceClassInput.addEventListener("change", function () {
+    updateSubjectOptions(
+        sourceClassInput,
+        sourceSubjectInput
+    );
+});
+
+targetClassInput.addEventListener("change", function () {
+    updateSubjectOptions(
+        targetClassInput,
+        targetSubjectInput
+    );
+});
+
+updateSubjectOptions(
+    sourceClassInput,
+    sourceSubjectInput
+);
+
+updateSubjectOptions(
+    targetClassInput,
+    targetSubjectInput
+);
 
 updateTransferModeInterface();
 updateProgress();
@@ -259,18 +380,18 @@ form.addEventListener("submit", function (event) {
      * ПРОВЕРКИ ПРОДУКТОВ
      */
 
-    if (!sourceSubject) {
-        showError(
-            "Выберите предмет исходного продукта.",
-            "sourceSubject"
-        );
-        return;
-    }
-
     if (!sourceClass) {
         showError(
             "Выберите класс исходного продукта.",
             "sourceClass"
+        );
+        return;
+    }
+
+    if (!sourceSubject) {
+        showError(
+            "Выберите предмет исходного продукта.",
+            "sourceSubject"
         );
         return;
     }
@@ -283,18 +404,18 @@ form.addEventListener("submit", function (event) {
         return;
     }
 
-    if (!targetSubject) {
-        showError(
-            "Выберите предмет нового продукта.",
-            "targetSubject"
-        );
-        return;
-    }
-
     if (!targetClass) {
         showError(
             "Выберите класс нового продукта.",
             "targetClass"
+        );
+        return;
+    }
+
+    if (!targetSubject) {
+        showError(
+            "Выберите предмет нового продукта.",
+            "targetSubject"
         );
         return;
     }
@@ -802,6 +923,16 @@ resetButton.addEventListener("click", function () {
 
     form.reset();
 
+    updateSubjectOptions(
+    sourceClassInput,
+    sourceSubjectInput
+    );
+
+    updateSubjectOptions(
+        targetClassInput,
+        targetSubjectInput
+    );
+
     if (employeeNameInput) {
         employeeNameInput.value = savedName;
     }
@@ -1125,6 +1256,54 @@ function isNonNegativeInteger(value) {
         Number.isInteger(value) &&
         value >= 0
     );
+}
+
+function updateSubjectOptions(
+    classInput,
+    subjectInput
+) {
+    const selectedClass = classInput.value;
+
+    subjectInput.innerHTML = "";
+
+    const placeholderOption =
+        document.createElement("option");
+
+    placeholderOption.value = "";
+
+    if (!selectedClass) {
+        placeholderOption.textContent =
+            "Сначала выберите класс";
+
+        subjectInput.appendChild(
+            placeholderOption
+        );
+
+        subjectInput.disabled = true;
+        return;
+    }
+
+    placeholderOption.textContent =
+        "Выберите предмет";
+
+    subjectInput.appendChild(
+        placeholderOption
+    );
+
+    const availableSubjects =
+        SUBJECTS_BY_CLASS[selectedClass] || [];
+
+    availableSubjects.forEach(subject => {
+        const option =
+            document.createElement("option");
+
+        option.value = subject;
+        option.textContent = subject;
+
+        subjectInput.appendChild(option);
+    });
+
+    subjectInput.disabled = false;
 }
 
 function buildProductName(
