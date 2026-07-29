@@ -85,19 +85,16 @@ const EMPLOYEE_NAME_STORAGE_KEY =
 
 const SUBJECTS_BY_CLASS = {
     "5": [
-        "Пакет предметов",
         "Математика",
         "Русский язык"
     ],
 
     "6": [
-        "Пакет предметов",
         "Математика",
         "Русский язык"
     ],
 
     "7": [
-        "Пакет предметов",
         "Английский язык",
         "Биология",
         "История",
@@ -108,7 +105,6 @@ const SUBJECTS_BY_CLASS = {
     ],
 
     "8": [
-       "Пакет предметов",
         "Английский язык",
         "Биология",
         "Информатика",
@@ -121,7 +117,6 @@ const SUBJECTS_BY_CLASS = {
     ],
 
     "9": [
-       "Пакет предметов",
         "Английский язык",
         "Биология",
         "География",
@@ -136,7 +131,6 @@ const SUBJECTS_BY_CLASS = {
     ],
 
     "10": [
-       "Пакет предметов",
         "Английский язык",
         "Базовая математика",
         "Биология",
@@ -152,7 +146,6 @@ const SUBJECTS_BY_CLASS = {
     ],
 
     "11": [
-       "Пакет предметов",
         "Английский язык",
         "Базовая математика",
         "Биология",
@@ -431,9 +424,12 @@ form.addEventListener("submit", function (event) {
      * ПРОВЕРКА КЛАССА И ГРЕЙДА
      */
 
-    if (sourceClass !== targetClass) {
+    const sourceGroup = getClassGroup(sourceClass);
+    const targetGroup = getClassGroup(targetClass);
+
+    if (sourceGroup !== targetGroup) {
         showError(
-            "Проверьте введенные данные! Перенос между разными классами невозможен. Клиенту необходимо обратиться в группу возвратов и переносов."
+            "Проверьте введенные данные! Перенос возможен только внутри групп 5–6 классов или 7–11 классов. Клиенту необходимо обратиться в группу возвратов и переносов."
         );
         return;
     }
@@ -1245,6 +1241,20 @@ function getOptionalNumberValue(
     }
 
     return Number(element.value);
+}
+
+function getClassGroup(classNumber) {
+    const classValue = Number(classNumber);
+
+    if (classValue >= 5 && classValue <= 6) {
+        return 1;
+    }
+
+    if (classValue >= 7 && classValue <= 11) {
+        return 2;
+    }
+
+    return null;
 }
 
 function isNonNegativeInteger(value) {
