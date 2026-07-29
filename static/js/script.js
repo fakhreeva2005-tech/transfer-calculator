@@ -554,10 +554,13 @@ form.addEventListener("submit", function (event) {
         packagePrice / totalLessons;
 
     const transferAmount =
-        lessonPrice * transferLessons;
+    lessonPrice * transferLessons;
 
     const paidLessonsLeft =
         remainingPaidLessons - transferLessons;
+
+    const amountLeftOnSource =
+        lessonPrice * paidLessonsLeft;
 
     const totalLessonsToNewPackage =
         transferLessons + giftLessons;
@@ -566,6 +569,18 @@ form.addEventListener("submit", function (event) {
         transferMode === "full"
             ? "Полный перенос"
             : "Частичный перенос";
+
+    const lessonsForForm =
+    transferMode === "partial"
+        ? `${sourceSubject}, ${sourceClass} класс — ${formatLessons(paidLessonsLeft)} / ` +
+          `${targetSubject}, ${targetClass} класс — ${formatLessons(totalLessonsToNewPackage)}`
+        : String(totalLessonsToNewPackage);
+
+    const transferAmountForForm =
+        transferMode === "partial"
+            ? `${sourceSubject} — ${formatNumberForGoogleForm(amountLeftOnSource)} / ` +
+              `${targetSubject} — ${formatNumberForGoogleForm(transferAmount)}`
+            : formatNumberForGoogleForm(transferAmount);
 
     const sourceProduct =
         buildPackageProductName(
@@ -760,10 +775,14 @@ ${completedPractice}
 ${giftLessons}
 
 Количество занятий в новом пакете:
-${totalLessonsToNewPackage}
+${transferMode === "partial"
+    ? `${sourceSubject}, ${sourceClass} класс — ${formatLessons(paidLessonsLeft)} / ${targetSubject}, ${targetClass} класс — ${formatLessons(totalLessonsToNewPackage)}`
+    : formatLessons(totalLessonsToNewPackage)}
 
 Сумма переноса:
-${formatMoney(transferAmount)}
+${transferMode === "partial"
+    ? `${sourceSubject} — ${formatMoney(amountLeftOnSource)} / ${targetSubject} — ${formatMoney(transferAmount)}`
+    : formatMoney(transferAmount)}
 
 Промокод:
 ${formatMoney(promoAmount)}
@@ -791,7 +810,9 @@ const googleFormUrl =
         completedPractice,
         giftLessons,
         totalLessonsToNewPackage,
+        lessonsForForm,
         transferAmount,
+        transferAmountForForm,
         promoAmount,
         transferNote,
         urgentTransfer
@@ -1433,14 +1454,12 @@ function buildGoogleFormUrl(data) {
 
     params.set(
         "entry.1922523051",
-        String(data.totalLessonsToNewPackage)
+        data.lessonsForForm
     );
 
     params.set(
         "entry.872425280",
-        formatNumberForGoogleForm(
-            data.transferAmount
-        )
+        data.transferAmountForForm
     );
 
     if (data.promoAmount > 0) {
