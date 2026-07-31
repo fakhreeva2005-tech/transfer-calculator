@@ -535,107 +535,6 @@
 
             </div>
 
-            <div class="grid">
-
-
-
-                <div class="form-group">
-
-                    <label for="targetClass">
-                        Новый класс
-                    </label>
-
-                    <select
-                        id="targetClass"
-                        data-required-field
-                        required
-                    >
-                        <option value="">
-                            Выберите класс
-                        </option>
-
-                        <option value="5">
-                            5 класс
-                        </option>
-
-                        <option value="6">
-                            6 класс
-                        </option>
-
-                        <option value="7">
-                            7 класс
-                        </option>
-
-                        <option value="8">
-                            8 класс
-                        </option>
-
-                        <option value="9">
-                            9 класс
-                        </option>
-
-                        <option value="10">
-                            10 класс
-                        </option>
-
-                        <option value="11">
-                            11 класс
-                        </option>
-                    </select>
-
-                </div>
-
-                <div class="form-group">
-
-                    <label for="targetSubject">
-                        Новый предмет
-                    </label>
-
-                    <select
-                        id="targetSubject"
-                        data-required-field
-                        required
-                        disabled
-                    >
-                        <option value="">
-                            Сначала выберите класс
-                        </option>
-                    </select>
-
-                </div>
-
-                <div class="form-group">
-
-                    <label for="targetGrade">
-                        Новый грейд
-                    </label>
-
-                    <select
-                        id="targetGrade"
-                        data-required-field
-                        required
-                    >
-                        <option value="">
-                            Выберите грейд
-                        </option>
-
-                        <option value="Компетентный">
-                            Компетентный
-                        </option>
-
-                        <option value="Профессионал">
-                            Профессионал
-                        </option>
-
-                        <option value="Эксперт">
-                            Эксперт
-                        </option>
-                    </select>
-
-                </div>
-
-            </div>
-
             <!-- ТИП ПЕРЕНОСА -->
             <div class="transfer-mode-block">
 
@@ -663,8 +562,8 @@
                             </strong>
 
                             <small>
-                                Переносится весь доступный остаток
-                                оплаченных занятий.
+                                Весь доступный остаток оплаченных занятий
+                                распределяется между новыми продуктами.
                             </small>
 
                         </span>
@@ -700,58 +599,57 @@
 
             </div>
 
-            <!-- ИНФОРМАЦИЯ О ПОЛНОМ ПЕРЕНОСЕ -->
-            <div
-                id="fullTransferInfo"
-                class="auto-transfer-info"
-            >
+            <!-- НОВЫЕ ПРОДУКТЫ -->
+            <div class="target-products-section">
 
-                <span class="auto-transfer-icon">
-                    ✨
-                </span>
+                <div class="additional-fields-header">
 
-                <div>
+                    <h3>
+                        Распределение занятий
+                    </h3>
 
-                    <strong>
-                        Количество занятий определится автоматически
-                    </strong>
-
-                    <p id="fullTransferText">
-                        Укажите данные исходного пакета
-                        и использованных занятий.
+                    <p>
+                        Укажите один или несколько продуктов,
+                        между которыми нужно распределить занятия.
                     </p>
 
                 </div>
 
-            </div>
+                <div
+                    id="targetProductsContainer"
+                    class="target-products-container"
+                ></div>
 
-            <!-- ПОЛЕ ЧАСТИЧНОГО ПЕРЕНОСА -->
-            <div
-                id="partialTransferFields"
-                class="partial-transfer-fields hidden"
-            >
+                <button
+                    type="button"
+                    id="addTargetProductButton"
+                    class="secondary-button add-product-button"
+                >
+                    <span>＋</span>
+                    Добавить ещё предмет
+                </button>
 
-                <div class="form-group">
+                <div
+                    id="distributionSummary"
+                    class="auto-transfer-info"
+                >
 
-                    <label for="transferLessons">
-                        Оплаченных занятий для переноса
-                    </label>
+                    <span class="auto-transfer-icon">
+                        📊
+                    </span>
 
-                    <input
-                        type="number"
-                        id="transferLessons"
-                        min="1"
-                        step="1"
-                        placeholder="Например, 56"
-                    >
+                    <div>
 
-                    <small
-                        id="transferLessonsHint"
-                        class="field-hint"
-                    >
-                        Укажите только оплаченные занятия.
-                        Подарочные добавятся автоматически.
-                    </small>
+                        <strong>
+                            Распределение занятий
+                        </strong>
+
+                        <p id="distributionSummaryText">
+                            Укажите данные исходного пакета
+                            и распределите занятия.
+                        </p>
+
+                    </div>
 
                 </div>
 

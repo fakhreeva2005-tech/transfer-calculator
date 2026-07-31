@@ -20,6 +20,12 @@ const openGoogleFormButton =
 const employeeNameInput =
     document.getElementById("employeeName");
 
+const sourceClassInput =
+    document.getElementById("sourceClass");
+
+const sourceSubjectInput =
+    document.getElementById("sourceSubject");
+
 const progressBar = document.getElementById("progressBar");
 const progressPercent =
     document.getElementById("progressPercent");
@@ -28,32 +34,16 @@ const formStatus = document.getElementById("formStatus");
 const formStatusText =
     document.getElementById("formStatusText");
 
-const transferLessonsInput =
-    document.getElementById("transferLessons");
+const targetProductsContainer =
+    document.getElementById("targetProductsContainer");
 
-const sourceClassInput =
-    document.getElementById("sourceClass");
+const addTargetProductButton =
+    document.getElementById("addTargetProductButton");
 
-const sourceSubjectInput =
-    document.getElementById("sourceSubject");
+const distributionSummaryText =
+    document.getElementById("distributionSummaryText");
 
-const targetClassInput =
-    document.getElementById("targetClass");
-
-const targetSubjectInput =
-    document.getElementById("targetSubject");
-
-const fullTransferInfo =
-    document.getElementById("fullTransferInfo");
-
-const fullTransferText =
-    document.getElementById("fullTransferText");
-
-const partialTransferFields =
-    document.getElementById("partialTransferFields");
-
-const transferLessonsHint =
-    document.getElementById("transferLessonsHint");
+let targetProductCounter = 0;
 
 const requiredFields = Array.from(
     document.querySelectorAll("[data-required-field]")
@@ -221,29 +211,418 @@ sourceClassInput.addEventListener("change", function () {
     );
 });
 
-targetClassInput.addEventListener("change", function () {
-    updateSubjectOptions(
-        targetClassInput,
-        targetSubjectInput
-    );
-});
 
 updateSubjectOptions(
     sourceClassInput,
     sourceSubjectInput
 );
 
-updateSubjectOptions(
-    targetClassInput,
-    targetSubjectInput
+addTargetProduct();
+
+addTargetProductButton.addEventListener(
+    "click",
+    function () {
+        if (getTransferMode() === "full") {
+            return;
+        }
+
+        addTargetProduct();
+        updateDistributionSummary();
+        updateProgress();
+    }
 );
 
 updateTransferModeInterface();
 updateProgress();
 
 /*
- * РАСЧЁТ
+ * ДИНАМИЧЕСКИЕ НОВЫЕ ПРОДУКТЫ
  */
+
+function addTargetProduct() {
+    targetProductCounter += 1;
+
+    const productCard = document.createElement("div");
+
+    productCard.className = "target-product-card";
+    productCard.dataset.targetProductId =
+        String(targetProductCounter);
+
+    productCard.innerHTML = `
+        <div class="target-product-header">
+
+            <h3 class="target-product-title">
+                Новый продукт
+            </h3>
+
+            <button
+                type="button"
+                class="remove-target-product-button"
+                aria-label="Удалить новый продукт"
+            >
+                Удалить
+            </button>
+
+        </div>
+
+        <div class="grid">
+
+            <div class="form-group">
+
+                <label>
+                    Новый класс
+                </label>
+
+                <select
+                    class="target-class"
+                    data-required-field
+                    required
+                >
+                    <option value="">
+                        Выберите класс
+                    </option>
+
+                    <option value="5">5 класс</option>
+                    <option value="6">6 класс</option>
+                    <option value="7">7 класс</option>
+                    <option value="8">8 класс</option>
+                    <option value="9">9 класс</option>
+                    <option value="10">10 класс</option>
+                    <option value="11">11 класс</option>
+                </select>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Новый предмет
+                </label>
+
+                <select
+                    class="target-subject"
+                    data-required-field
+                    required
+                    disabled
+                >
+                    <option value="">
+                        Сначала выберите класс
+                    </option>
+                </select>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Новый грейд
+                </label>
+
+                <select
+                    class="target-grade"
+                    data-required-field
+                    required
+                >
+                    <option value="">
+                        Выберите грейд
+                    </option>
+
+                    <option value="Компетентный">
+                        Компетентный
+                    </option>
+
+                    <option value="Профессионал">
+                        Профессионал
+                    </option>
+
+                    <option value="Эксперт">
+                        Эксперт
+                    </option>
+                </select>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Оплаченных занятий
+                </label>
+
+                <input
+                    type="number"
+                    class="target-paid-lessons"
+                    min="1"
+                    step="1"
+                    placeholder="Например, 10"
+                    data-required-field
+                    required
+                >
+
+                <small class="field-hint">
+                    Количество оплаченных занятий,
+                    которое переносится на этот предмет.
+                </small>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Подарочных занятий
+                </label>
+
+                <input
+                    type="number"
+                    class="target-gift-lessons"
+                    min="0"
+                    step="1"
+                    placeholder="Например, 2"
+                    value="0"
+                    data-required-field
+                    required
+                >
+
+                <small class="field-hint">
+                    Можно указать 0.
+                    Общая сумма должна совпасть
+                    с подарочным остатком.
+                </small>
+
+            </div>
+
+        </div>
+    `;
+
+    targetProductsContainer.appendChild(productCard);
+
+    const classInput =
+        productCard.querySelector(".target-class");
+
+    const subjectInput =
+        productCard.querySelector(".target-subject");
+
+    const removeButton =
+        productCard.querySelector(
+            ".remove-target-product-button"
+        );
+
+    classInput.addEventListener("change", function () {
+        updateSubjectOptions(
+            classInput,
+            subjectInput
+        );
+
+        markCalculationAsChanged();
+    });
+
+    productCard.addEventListener("input", function () {
+        markCalculationAsChanged();
+        updateDistributionSummary();
+    });
+
+    productCard.addEventListener("change", function () {
+        markCalculationAsChanged();
+        updateDistributionSummary();
+    });
+
+    removeButton.addEventListener("click", function () {
+        removeTargetProduct(productCard);
+    });
+
+    updateTargetProductCards();
+    updateTransferModeInterface();
+}
+
+function removeTargetProduct(productCard) {
+    const cards = getTargetProductCards();
+
+    if (cards.length <= 1) {
+        showError(
+            "Должен остаться хотя бы один новый продукт."
+        );
+        return;
+    }
+
+    productCard.remove();
+
+    calculationCompleted = false;
+    clearGoogleFormLink();
+
+    updateTargetProductCards();
+    updateDistributionSummary();
+    updateProgress();
+}
+
+function getTargetProductCards() {
+    return Array.from(
+        targetProductsContainer.querySelectorAll(
+            ".target-product-card"
+        )
+    );
+}
+
+function updateTargetProductCards() {
+    const cards = getTargetProductCards();
+
+    cards.forEach((card, index) => {
+        const title =
+            card.querySelector(".target-product-title");
+
+        const removeButton =
+            card.querySelector(
+                ".remove-target-product-button"
+            );
+
+        title.textContent =
+            `Новый продукт №${index + 1}`;
+
+        removeButton.classList.toggle(
+            "hidden",
+            cards.length === 1
+        );
+    });
+}
+
+function markCalculationAsChanged() {
+    calculationCompleted = false;
+
+    clearGoogleFormLink();
+    clearFieldErrors();
+    updateProgress();
+}
+
+function collectTargetProducts() {
+    return getTargetProductCards().map(
+        (card, index) => {
+            const classInput =
+                card.querySelector(".target-class");
+
+            const subjectInput =
+                card.querySelector(".target-subject");
+
+            const gradeInput =
+                card.querySelector(".target-grade");
+
+            const paidLessonsInput =
+                card.querySelector(
+                    ".target-paid-lessons"
+                );
+
+            const giftLessonsInput =
+                card.querySelector(
+                    ".target-gift-lessons"
+                );
+
+            return {
+                index: index + 1,
+                card,
+                classInput,
+                subjectInput,
+                gradeInput,
+                paidLessonsInput,
+                giftLessonsInput,
+
+                classNumber:
+                    classInput.value,
+
+                subject:
+                    subjectInput.value,
+
+                grade:
+                    gradeInput.value,
+
+                paidLessons:
+                    Number(paidLessonsInput.value),
+
+                giftLessons:
+                    giftLessonsInput.value.trim() === ""
+                        ? 0
+                        : Number(giftLessonsInput.value)
+            };
+        }
+    );
+}
+
+function updateDistributionSummary() {
+    if (!distributionSummaryText) {
+        return;
+    }
+
+    const totalLessons =
+        getOptionalNumberValue("totalLessons", 0);
+
+    const completedPractice =
+        getOptionalNumberValue(
+            "completedPractice",
+            0
+        );
+
+    const completedTheory =
+        getOptionalNumberValue(
+            "completedTheory",
+            0
+        );
+
+    const giftLessons =
+        getOptionalNumberValue("giftLessons", 0);
+
+    const remainingPaidLessons =
+        totalLessons -
+        completedPractice -
+        completedTheory;
+
+    const targetProducts =
+        collectTargetProducts();
+
+    const distributedPaidLessons =
+        targetProducts.reduce(
+            (sum, product) => {
+                return (
+                    sum +
+                    (
+                        Number.isFinite(
+                            product.paidLessons
+                        )
+                            ? product.paidLessons
+                            : 0
+                    )
+                );
+            },
+            0
+        );
+
+    const distributedGiftLessons =
+        targetProducts.reduce(
+            (sum, product) => {
+                return (
+                    sum +
+                    (
+                        Number.isFinite(
+                            product.giftLessons
+                        )
+                            ? product.giftLessons
+                            : 0
+                    )
+                );
+            },
+            0
+        );
+
+    const paidLessonsLeft =
+        remainingPaidLessons -
+        distributedPaidLessons;
+
+    distributionSummaryText.textContent =
+        `Доступно оплаченных: ` +
+        `${Math.max(remainingPaidLessons, 0)}. ` +
+        `Распределено оплаченных: ` +
+        `${distributedPaidLessons}. ` +
+        `Осталось оплаченных: ` +
+        `${paidLessonsLeft}. ` +
+        `Подарочных распределено: ` +
+        `${distributedGiftLessons} из ` +
+        `${Math.max(giftLessons, 0)}.`;
+}
 
 /*
  * РАСЧЁТ
@@ -274,14 +653,6 @@ form.addEventListener("submit", function (event) {
     const sourceGrade =
         document.getElementById("sourceGrade").value;
 
-    const targetSubject =
-        document.getElementById("targetSubject").value;
-
-    const targetClass =
-        document.getElementById("targetClass").value;
-
-    const targetGrade =
-        document.getElementById("targetGrade").value;
 
     const totalLessons =
         getNumberValue("totalLessons");
@@ -315,14 +686,22 @@ form.addEventListener("submit", function (event) {
     const remainingPaidLessons =
         totalLessons - completedPaidLessons;
 
-    let transferLessons;
+    const targetProducts =
+        collectTargetProducts();
 
-    if (transferMode === "full") {
-        transferLessons = remainingPaidLessons;
-    } else {
-        transferLessons =
-            getNumberValue("transferLessons");
-    }
+    const transferLessons =
+        targetProducts.reduce(
+            (sum, product) =>
+                sum + product.paidLessons,
+            0
+        );
+
+    const distributedGiftLessons =
+        targetProducts.reduce(
+            (sum, product) =>
+                sum + product.giftLessons,
+            0
+        );
 
     resultBlock.classList.remove("hidden");
     copyBlock.classList.add("hidden");
@@ -397,48 +776,131 @@ form.addEventListener("submit", function (event) {
         return;
     }
 
-    if (!targetClass) {
-        showError(
-            "Выберите класс нового продукта.",
-            "targetClass"
-        );
-        return;
-    }
 
-    if (!targetSubject) {
-        showError(
-            "Выберите предмет нового продукта.",
-            "targetSubject"
-        );
-        return;
-    }
-
-    if (!targetGrade) {
-        showError(
-            "Выберите грейд нового продукта.",
-            "targetGrade"
-        );
-        return;
-    }
     /*
-     * ПРОВЕРКА КЛАССА И ГРЕЙДА
+     * ПРОВЕРКИ НОВЫХ ПРОДУКТОВ
      */
 
-    const sourceGroup = getClassGroup(sourceClass);
-    const targetGroup = getClassGroup(targetClass);
-
-    if (sourceGroup !== targetGroup) {
+    if (targetProducts.length === 0) {
         showError(
-            "Проверьте введенные данные! Перенос возможен только внутри групп 5–6 классов или 7–11 классов. Клиенту необходимо обратиться в группу возвратов и переносов."
+            "Добавьте хотя бы один новый продукт."
         );
         return;
     }
 
-    if (sourceGrade !== targetGrade) {
-        showError(
-            "Проверьте введенные данные! Перенос между разными грейдами невозможен. Клиенту необходимо обратиться в группу возвратов и переносов."
-        );
-        return;
+    const sourceGroup =
+        getClassGroup(sourceClass);
+
+    for (const product of targetProducts) {
+        if (!product.classNumber) {
+            showError(
+                `Выберите класс для нового продукта №${product.index}.`
+            );
+
+            product.classInput.classList.add(
+                "field-error"
+            );
+
+            product.classInput.focus();
+            return;
+        }
+
+        if (!product.subject) {
+            showError(
+                `Выберите предмет для нового продукта №${product.index}.`
+            );
+
+            product.subjectInput.classList.add(
+                "field-error"
+            );
+
+            product.subjectInput.focus();
+            return;
+        }
+
+        if (!product.grade) {
+            showError(
+                `Выберите грейд для нового продукта №${product.index}.`
+            );
+
+            product.gradeInput.classList.add(
+                "field-error"
+            );
+
+            product.gradeInput.focus();
+            return;
+        }
+
+        const targetGroup =
+            getClassGroup(product.classNumber);
+
+        if (sourceGroup !== targetGroup) {
+            showError(
+                `Новый продукт №${product.index}: ` +
+                "перенос возможен только внутри групп " +
+                "5–6 классов или 7–11 классов. " +
+                "Клиенту необходимо обратиться в группу " +
+                "возвратов и переносов."
+            );
+
+            product.classInput.classList.add(
+                "field-error"
+            );
+
+            product.classInput.focus();
+            return;
+        }
+
+        if (sourceGrade !== product.grade) {
+            showError(
+                `Новый продукт №${product.index}: ` +
+                "перенос между разными грейдами невозможен. " +
+                "Клиенту необходимо обратиться в группу " +
+                "возвратов и переносов."
+            );
+
+            product.gradeInput.classList.add(
+                "field-error"
+            );
+
+            product.gradeInput.focus();
+            return;
+        }
+
+        if (
+            !Number.isInteger(product.paidLessons) ||
+            product.paidLessons <= 0
+        ) {
+            showError(
+                `Укажите целое количество оплаченных занятий ` +
+                `больше нуля для нового продукта №${product.index}.`
+            );
+
+            product.paidLessonsInput.classList.add(
+                "field-error"
+            );
+
+            product.paidLessonsInput.focus();
+            return;
+        }
+
+        if (
+            !Number.isInteger(product.giftLessons) ||
+            product.giftLessons < 0
+        ) {
+            showError(
+                `Количество подарочных занятий для нового ` +
+                `продукта №${product.index} должно быть ` +
+                "целым числом от нуля."
+            );
+
+            product.giftLessonsInput.classList.add(
+                "field-error"
+            );
+
+            product.giftLessonsInput.focus();
+            return;
+        }
     }
 
 
@@ -520,33 +982,60 @@ form.addEventListener("submit", function (event) {
     }
 
     /*
-     * ПРОВЕРКИ ЧАСТИЧНОГО ПЕРЕНОСА
+     * ПРОВЕРКА РАСПРЕДЕЛЕНИЯ ЗАНЯТИЙ
      */
 
-    if (transferMode === "partial") {
-        if (
-            !Number.isInteger(transferLessons) ||
-            transferLessons <= 0
-        ) {
-            showError(
-                "Количество оплаченных занятий для частичного переноса должно быть целым числом больше нуля.",
-                "transferLessons"
-            );
-            return;
-        }
-
-        if (transferLessons >= remainingPaidLessons) {
-            showError(
-                `Для частичного переноса необходимо указать меньше ` +
-                `${remainingPaidLessons} занятий. ` +
-                "Если переносится весь остаток, выберите полный перенос.",
-                "transferLessons"
-            );
-            return;
-        }
+    if (transferLessons > remainingPaidLessons) {
+        showError(
+            `Распределено ${transferLessons} оплаченных занятий, ` +
+            `но доступный остаток составляет только ` +
+            `${remainingPaidLessons}.`
+        );
+        return;
     }
 
-    /*
+    if (
+        transferMode === "full" &&
+        transferLessons !== remainingPaidLessons
+    ) {
+        showError(
+            `При полном переносе необходимо распределить ` +
+            `все ${remainingPaidLessons} оплаченных занятий. ` +
+            `Сейчас распределено ${transferLessons}.`
+        );
+        return;
+    }
+
+    if (
+        transferMode === "partial" &&
+        targetProducts.length < 2
+    ) {
+        showError(
+            "При частичном переносе добавьте минимум два новых продукта."
+        );
+        return;
+    }
+
+    if (
+        transferMode === "full" &&
+        targetProducts.length > 1
+    ) {
+        showError(
+            "При полном переносе можно указать только один новый продукт."
+        );
+        return;
+    }
+
+    if (distributedGiftLessons !== giftLessons) {
+        showError(
+            `Распределите все подарочные занятия. ` +
+            `Доступно ${giftLessons}, ` +
+            `распределено ${distributedGiftLessons}.`
+        );
+        return;
+    }
+
+     /*
      * РАСЧЁТ
      */
 
@@ -554,7 +1043,7 @@ form.addEventListener("submit", function (event) {
         packagePrice / totalLessons;
 
     const transferAmount =
-    lessonPrice * transferLessons;
+        lessonPrice * transferLessons;
 
     const paidLessonsLeft =
         remainingPaidLessons - transferLessons;
@@ -570,18 +1059,6 @@ form.addEventListener("submit", function (event) {
             ? "Полный перенос"
             : "Частичный перенос";
 
-    const lessonsForForm =
-    transferMode === "partial"
-        ? `${sourceSubject}, ${sourceClass} класс — ${formatLessons(paidLessonsLeft)} / ` +
-          `${targetSubject}, ${targetClass} класс — ${formatLessons(totalLessonsToNewPackage)}`
-        : String(totalLessonsToNewPackage);
-
-    const transferAmountForForm =
-        transferMode === "partial"
-            ? `${sourceSubject} — ${formatNumberForGoogleForm(amountLeftOnSource)} / ` +
-              `${targetSubject} — ${formatNumberForGoogleForm(transferAmount)}`
-            : formatNumberForGoogleForm(transferAmount);
-
     const sourceProduct =
         buildPackageProductName(
             sourceSubject,
@@ -590,26 +1067,106 @@ form.addEventListener("submit", function (event) {
             sourceGrade
         );
 
-    /*
-     * Значение для поля:
-     * «Укажи, на какой продукт делаем перенос»
-     *
-     * При полном переносе указываем только новый продукт.
-     * При частичном — исходный продукт с остатком
-     * и новый продукт с количеством переносимых занятий.
-     */
-    const transferProductField =
-        buildTransferProductField({
-            transferMode,
-            sourceSubject,
-            sourceClass,
-            sourceGrade,
-            targetSubject,
-            targetClass,
-            targetGrade,
-            paidLessonsLeft,
-            transferLessons
+    const targetProductLines =
+        targetProducts.map(product => {
+            const totalProductLessons =
+                product.paidLessons +
+                product.giftLessons;
+
+            return buildPackageProductName(
+                product.subject,
+                product.classNumber,
+                totalProductLessons,
+                product.grade
+            );
         });
+
+    const transferProductParts = [];
+
+    if (
+        transferMode === "partial" &&
+        paidLessonsLeft > 0
+    ) {
+        transferProductParts.push(
+            buildPackageProductName(
+                sourceSubject,
+                sourceClass,
+                paidLessonsLeft,
+                sourceGrade
+            )
+        );
+    }
+
+    transferProductParts.push(...targetProductLines);
+
+    const transferProductField =
+        transferProductParts.join(" / ");
+
+    const lessonsForFormParts = [];
+
+    if (
+        transferMode === "partial" &&
+        paidLessonsLeft > 0
+    ) {
+        lessonsForFormParts.push(
+            `${sourceSubject}, ${sourceClass} класс — ` +
+            `${formatLessons(paidLessonsLeft)}`
+        );
+    }
+
+    targetProducts.forEach(product => {
+        const totalProductLessons =
+            product.paidLessons +
+            product.giftLessons;
+
+        const giftPart =
+            product.giftLessons > 0
+                ? `, из них ${formatLessons(product.giftLessons)} подарочных`
+                : "";
+
+        lessonsForFormParts.push(
+            `${product.subject}, ` +
+            `${product.classNumber} класс — ` +
+            `${formatLessons(totalProductLessons)}` +
+            giftPart
+        );
+    });
+
+    const lessonsForForm =
+        lessonsForFormParts.join(" / ");
+
+    const transferAmountParts = [];
+
+    if (
+        transferMode === "partial" &&
+        paidLessonsLeft > 0
+    ) {
+        transferAmountParts.push(
+            `${sourceSubject}, ${sourceClass} класс — ` +
+            `${formatNumberForGoogleForm(amountLeftOnSource)}`
+        );
+    }
+
+    targetProducts.forEach(product => {
+        const productAmount =
+            lessonPrice * product.paidLessons;
+
+        transferAmountParts.push(
+            `${product.subject}, ` +
+            `${product.classNumber} класс — ` +
+            `${formatNumberForGoogleForm(productAmount)}`
+        );
+    });
+
+    const transferAmountForForm =
+        transferMode === "full" &&
+        targetProducts.length === 1
+            ? formatNumberForGoogleForm(
+                transferAmount
+            )
+            : transferAmountParts.join(" / ");
+
+
 
     calculationCompleted = true;
 
@@ -744,6 +1301,32 @@ form.addEventListener("submit", function (event) {
         </div>
     `;
 
+    const transferAmountForTextParts = [];
+
+    if (
+        transferMode === "partial" &&
+        paidLessonsLeft > 0
+    ) {
+        transferAmountForTextParts.push(
+            `${sourceSubject}, ${sourceClass} класс — ` +
+            `${formatMoney(amountLeftOnSource)}`
+        );
+    }
+
+    targetProducts.forEach(product => {
+        const productAmount =
+            lessonPrice * product.paidLessons;
+
+        transferAmountForTextParts.push(
+            `${product.subject}, ` +
+            `${product.classNumber} класс — ` +
+            `${formatMoney(productAmount)}`
+        );
+    });
+
+    const transferAmountForText =
+        transferAmountForTextParts.join(" / ");
+
     /*
      * ГОТОВЫЕ ДАННЫЕ
      * Порядок соответствует Google Форме.
@@ -775,14 +1358,10 @@ ${completedPractice}
 ${giftLessons}
 
 Количество занятий в новом пакете:
-${transferMode === "partial"
-    ? `${sourceSubject}, ${sourceClass} класс — ${formatLessons(paidLessonsLeft)} / ${targetSubject}, ${targetClass} класс — ${formatLessons(totalLessonsToNewPackage)}`
-    : formatLessons(totalLessonsToNewPackage)}
+${lessonsForForm}
 
 Сумма переноса:
-${transferMode === "partial"
-    ? `${sourceSubject} — ${formatMoney(amountLeftOnSource)} / ${targetSubject} — ${formatMoney(transferAmount)}`
-    : formatMoney(transferAmount)}
+${transferAmountForText}
 
 Промокод:
 ${formatMoney(promoAmount)}
@@ -846,76 +1425,92 @@ function updateTransferModeInterface() {
         getOptionalNumberValue("totalLessons", 0);
 
     const completedPractice =
-        getOptionalNumberValue("completedPractice", 0);
+        getOptionalNumberValue(
+            "completedPractice",
+            0
+        );
 
     const completedTheory =
-        getOptionalNumberValue("completedTheory", 0);
+        getOptionalNumberValue(
+            "completedTheory",
+            0
+        );
 
-    const completedPaidLessons =
-        completedPractice + completedTheory;
+    const remainingPaidLessons = Math.max(
+        totalLessons -
+        completedPractice -
+        completedTheory,
+        0
+    );
 
-    const remainingPaidLessons =
-        totalLessons - completedPaidLessons;
+    const productCards = getTargetProductCards();
 
     if (transferMode === "full") {
-        partialTransferFields.classList.add("hidden");
-        fullTransferInfo.classList.remove("hidden");
+        /*
+         * При полном переносе должен остаться
+         * только один новый продукт.
+         */
+        productCards
+            .slice(1)
+            .forEach(card => card.remove());
 
-        transferLessonsInput.removeAttribute(
-            "data-required-field"
-        );
+        const firstCard =
+            getTargetProductCards()[0];
 
-        transferLessonsInput.required = false;
-        transferLessonsInput.value = "";
+        if (firstCard) {
+            const paidLessonsInput =
+                firstCard.querySelector(
+                    ".target-paid-lessons"
+                );
 
-        if (
-            Number.isInteger(totalLessons) &&
-            totalLessons > 0 &&
-            isNonNegativeInteger(completedPractice) &&
-            isNonNegativeInteger(completedTheory)
-        ) {
-            if (remainingPaidLessons > 0) {
-                fullTransferText.textContent =
-                    `Будет перенесён весь оплаченный остаток: ` +
-                    `${formatLessons(remainingPaidLessons)}.`;
-            } else if (remainingPaidLessons === 0) {
-                fullTransferText.textContent =
-                    "Оплаченных занятий для переноса не осталось.";
-            } else {
-                fullTransferText.textContent =
-                    "Количество использованных занятий превышает размер пакета.";
+            if (paidLessonsInput) {
+                paidLessonsInput.value =
+                    remainingPaidLessons > 0
+                        ? String(remainingPaidLessons)
+                        : "";
+
+                paidLessonsInput.readOnly = true;
+                paidLessonsInput.classList.add(
+                    "auto-filled-field"
+                );
             }
-        } else {
-            fullTransferText.textContent =
-                "Укажите данные исходного пакета и использованных занятий.";
         }
-    } else {
-        fullTransferInfo.classList.add("hidden");
-        partialTransferFields.classList.remove("hidden");
 
-        transferLessonsInput.setAttribute(
-            "data-required-field",
-            ""
+        addTargetProductButton.disabled = true;
+        addTargetProductButton.classList.add(
+            "button-disabled"
         );
+    } else {
+        const firstCard =
+            getTargetProductCards()[0];
 
-        transferLessonsInput.required = true;
+        if (firstCard) {
+            const paidLessonsInput =
+                firstCard.querySelector(
+                    ".target-paid-lessons"
+                );
 
-        if (remainingPaidLessons > 1) {
-            transferLessonsInput.max =
-                String(remainingPaidLessons - 1);
+            if (
+                paidLessonsInput &&
+                paidLessonsInput.readOnly
+            ) {
+                paidLessonsInput.value = "";
+                paidLessonsInput.readOnly = false;
 
-            transferLessonsHint.textContent =
-                `Доступный оплаченный остаток: ` +
-                `${remainingPaidLessons}. ` +
-                `Для частичного переноса можно указать ` +
-                `от 1 до ${remainingPaidLessons - 1}.`;
-        } else {
-            transferLessonsInput.removeAttribute("max");
-
-            transferLessonsHint.textContent =
-                "Для частичного переноса на исходном продукте должно остаться хотя бы одно занятие.";
+                paidLessonsInput.classList.remove(
+                    "auto-filled-field"
+                );
+            }
         }
+
+        addTargetProductButton.disabled = false;
+        addTargetProductButton.classList.remove(
+            "button-disabled"
+        );
     }
+
+    updateTargetProductCards();
+    updateDistributionSummary();
 }
 
 function getTransferMode() {
@@ -940,15 +1535,17 @@ resetButton.addEventListener("click", function () {
 
     form.reset();
 
+    targetProductsContainer.innerHTML = "";
+    targetProductCounter = 0;
+
+    addTargetProduct();
+
     updateSubjectOptions(
     sourceClassInput,
     sourceSubjectInput
     );
 
-    updateSubjectOptions(
-        targetClassInput,
-        targetSubjectInput
-    );
+
 
     if (employeeNameInput) {
         employeeNameInput.value = savedName;
@@ -974,6 +1571,7 @@ resetButton.addEventListener("click", function () {
 
     clearFieldErrors();
     updateTransferModeInterface();
+    updateDistributionSummary();
     updateProgress();
 
     window.scrollTo({
